@@ -1,0 +1,302 @@
+{% extends "layout.html" %}
+{% block header %}
+    {{ super() }}
+    <style>
+        :root {
+            --chart-width: 100%;
+            --chart-height: 400px;
+            --chart-top: 0px;
+            --chart-left: 0px;
+            --chart-background-color: #ffffff;
+            --chart-axis-color: #000000;   
+            --chart-font-family: Verdana;  
+            --chart-label-font-size: 10px;
+            --chart-title-color: #000000;
+            --chart-title-font-size: 25px;
+            --chart-subtitle-color: #000000;
+            --chart-subtitle-font-size: 20px;
+            --chart-axis-title-color: #000000;
+            --chart-axis-title-font-size: 15px;
+            --chart-axis-x-interval: 1;
+            --chart-axis-x-zero: false;
+            --chart-line-color: #4ba96e;
+            --chart-label-color:#000000;
+            --chart-tick-x-length: 5px;
+            --chart-tick-y-length: 4px;
+            --chart-grid-x: false;
+            --chart-animation-duration: 1s;
+            --chart-legend-font-size: 12px;
+            --chart-legend-top: true;
+            --chart-border-color: #000000;
+            --chart-border-width: 4;   
+        }
+        div.newplot h1 {
+            text-align: center;
+            font-size: 36px;
+        }   
+        .item-single-range, .item-dual-range {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            font-size: 1.5rem;
+            padding-top: 1rem;
+        }
+        .single-range, .dual-range {
+            --height: 80px;
+            --bar-height: 5px;
+            --knob-size: 40px;
+            font-size: 1.5rem;
+        }
+        .range-container {
+            text-align: center;
+        } 
+    </style>
+    <script type="module">
+        import { actionSheetController } from 'https://cdn.jsdelivr.net/npm/@ionic/core@next/dist/ionic/index.esm.js';
+        window.actionSheetController = actionSheetController;
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="newplot">
+        <h1>Component Weight versus Position</h1>
+        <ion-fab vertical="top" horizontal="end" slot="fixed">
+            <ion-fab-button onClick="handleFabButtonClick()" color="secondary">
+            <ion-icon name="add"></ion-icon>
+            </ion-fab-button>
+        </ion-fab>
+        <!--<p>Plot: {{message}}</p> -->
+        <ion-card class="range-container hidden">
+            <div class="item-single-range hidden">
+                <ion-label id="label-single-range"></ion-label>
+                <ion-range  class="single-range" min={{rangeKeys['min']}} 
+                    max={{rangeKeys['max']}} color="secondary">
+                    <ion-label slot="start">Id: {{rangeKeys['min']}}</ion-label>
+                    <ion-label slot="end">Id: {{rangeKeys['max']}}</ion-label>
+                </ion-range> 
+            </div>         
+            <div class="item-dual-range hidden">
+                <ion-label id="label-dual-range"></ion-label>
+                <ion-range class="dual-range" dual-knobs min={{rangeKeys['min']}} 
+                    max={{rangeKeys['max']}}>
+                    <ion-label slot="start">Id: {{rangeKeys['min']}}</ion-label>
+                    <ion-label slot="end">Id: {{rangeKeys['max']}}</ion-label>
+                </ion-range> 
+            </div>
+            <ion-button class="button-plot hidden" onClick="handleButtonClick()" color="secondary" size="large">Plot</ion-button>      
+        </ion-card>
+        {% for plot in plots %}
+            <div class="plot-container"> 
+                <jeep-linechart id="plot-linechart" ctitle="{{plot['title']}}" subtitle="{{plot['sub_title']}}"
+                    xtitle="{{plot['x_axis_label']}}" ytitle="{{plot['y_axis_label']}}"
+                    data="{{plot['data']}}"
+                  animation cborder
+                  cstyle="--height:50%;--width:90%;--top:50px;--left:5%;">
+                </jeep-linechart>
+            </div> 
+        {% endfor %}
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        // get data and rangeKeys from python route.py
+        const jsArray = {{ data | tojson }};
+        const rangeKeys = {{ rangeKeys | tojson }};
+        const mode = "{{ mode }}"
+        // init global variables
+        var selectedValue
+        var selFromValue = jsArray[rangeKeys['min']];
+        var selToValue = jsArray[rangeKeys['max']];
+
+        // get the main HTML Elements
+        const root = document.documentElement;
+        const plotContainer = document.querySelector(".plot-container");
+        const rangeContainer = document.querySelector(".range-container");
+        const itemSingle = document.querySelector(".item-single-range");
+        const itemDual = document.querySelector(".item-dual-range");
+        const singleRange = document.querySelector(".single-range");
+        const dualRange = document.querySelector(".dual-range");
+        const singleLabel = document.querySelector("#label-single-range");
+        const dualLabel = document.querySelector("#label-dual-range");
+        const plotButton = document.querySelector(".button-plot");
+        const lineChart = document.querySelector("#plot-linechart");
+        // override some global custom css variables for the linechart web component
+        root.style.setProperty('--chart-axis-x-zero','false');
+        const xInter = mode === "one" ? '1' : '5'
+        root.style.setProperty('--chart-axis-x-interval',xInter);
+
+        if( plotContainer != null ) {
+            if( plotContainer.classList.contains('hidden')) plotContainer.classList.toggle('hidden');
+        }
+
+        // init single and dual Labels
+        singleLabel.textContent = "Component Position: " + rangeKeys['min'];
+        dualLabel.textContent = "Component Position From: " + rangeKeys['min'] + " To: " + rangeKeys['max'];
+
+        // define some EventListener for ion-range element    
+        singleRange.addEventListener('ionChange',(ev) => {
+            console.log('*** selectValue ',selectValue)
+            switch (selectValue) {
+                case "one":
+                    selFromValue = jsArray[ev.detail.value];
+                    singleLabel.textContent = "Component Position: " + jsArray[ev.detail.value];
+                    break;
+                case "from":
+                    selFromValue = jsArray[ev.detail.value];
+                    singleLabel.textContent = "Component From Position: " + jsArray[ev.detail.value];
+                    break;
+                case "to":
+                    selToValue = jsArray[ev.detail.value];
+                    singleLabel.textContent = "Component To Position: " + jsArray[ev.detail.value];
+                    break;
+            }
+        },false);
+        dualRange.addEventListener('ionChange',(ev) => {
+            dualLabel.textContent = "Component Position From: " + jsArray[ev.detail.value.lower] + 
+                " To: " + jsArray[ev.detail.value.upper];
+                    selFromValue = jsArray[ev.detail.value.lower];
+                    selToValue = jsArray[ev.detail.value.upper];
+        },false);
+
+        /**
+         * display single or dual ion-range
+         */
+        function selectRange(mode) {
+            // display Range Container
+            if( rangeContainer.classList.contains('hidden')) rangeContainer.classList.toggle('hidden');
+
+            switch (mode) {
+                case "single":
+                    // display single ion-range
+                    if( !itemDual.classList.contains('hidden')) itemDual.classList.toggle('hidden');
+                    if( itemSingle.classList.contains('hidden')) itemSingle.classList.toggle('hidden');
+
+                    break;
+                case "dual":
+                    // display dual ion-range
+                    if( !itemSingle.classList.contains('hidden')) itemSingle.classList.toggle('hidden');
+                    if( itemDual.classList.contains('hidden')) itemDual.classList.toggle('hidden');
+                    break;
+            }
+            // display Plot button
+            if( plotButton.classList.contains('hidden')) plotButton.classList.toggle('hidden');
+
+        }
+        /**
+         * define ion-fab-button Handler  
+         */
+        async function handleFabButtonClick() {
+            console.log('in handleButtonClick()');
+            // create the actionSheet for Position Selector
+            const actionSheet = await actionSheetController.create();
+            actionSheet.header = "Position Selector";
+            actionSheet.buttons = [{
+            text: 'All',
+            icon: 'albums',
+            handler: () =>{
+                    aSHandler('all');
+                }
+            }, {
+            text: 'One',
+            icon: 'add',
+            handler: () =>{
+                    aSHandler('one');
+                }
+            }, {
+            text: 'From',
+            icon: 'chevron-back',
+            handler: () => {
+                aSHandler('from');
+            }
+            }, {
+            text: 'To',
+            icon: 'chevron-forward',
+            handler: () => {
+                aSHandler('to');
+            }
+            }, {
+            text: 'From To',
+            icon: 'code',
+            handler: () => {
+                aSHandler('fromto');
+            }
+            }, {
+            text: 'Cancel',
+            icon: 'close',
+            role: 'cancel',
+            handler: () => {
+                aSHandler('cancel');
+            }
+            }];
+            await actionSheet.present();
+        }
+
+        /**
+         * define ion-actionsheet handler
+         */
+        async function aSHandler(type) {
+            if(type != "cancel") {
+                if( mode != "none" ) {
+                    if( !plotContainer.classList.contains('hidden')) plotContainer.classList.toggle('hidden');
+                }
+                selectValue = type
+                switch (selectValue) {
+                    case "all":
+                        break;
+                    case "one":
+                        singleLabel.textContent = "Component Position: " + rangeKeys['min'];
+                        selectRange('single');
+                        break;
+                    case "from":
+                        singleLabel.textContent = "Component From Position: " + rangeKeys['min'];
+                        selectRange('single');
+                        break;
+                    case "to":
+                        singleRange.value =rangeKeys['max'];
+                        singleLabel.textContent = "Component To Position: " + rangeKeys['max'];
+                        selectRange('single');
+                        break;
+                    case "fromto":
+                        dualRange.value = { lower: rangeKeys['min'], upper: rangeKeys['max'] };
+                        dualLabel.textContent = "Component Position From: " + jsArray[rangeKeys['min']] + 
+                            " To: " + jsArray[rangeKeys['max']];
+                        selectRange('dual');
+                        break;
+
+                }
+                if( rangeContainer.classList.contains('hidden')) rangeContainer.classList.toggle('hidden');
+                if( plotButton.classList.contains('hidden')) plotButton.classList.toggle('hidden');
+            }
+        }
+        /**
+         * define ion-button handler
+         */
+        async function handleButtonClick() {
+            var url ="{{url_for('newplot',pos='mode')}}";
+            var value;
+            switch (selectValue) {
+                case "all": 
+                    value = JSON.stringify({'mode':selectValue});
+                    break;
+                case "one": 
+                    value = JSON.stringify({'mode':selectValue,'value':{'from':selFromValue}});
+                    break;
+                case "from": 
+                    value = JSON.stringify({'mode':selectValue,'value':{'from':selFromValue}});
+                    break;
+                case "to": 
+                    value = JSON.stringify({'mode':selectValue,'value':{'to':selToValue}});                
+                    break;
+                case "fromto": 
+                    value = JSON.stringify({'mode':selectValue,'value':{'from':selFromValue,'to':selToValue}});                
+                    break;
+            }
+            url = url.replace('mode',value)
+            document.location.href = url;
+        }
+
+    </script>
+    {{ super() }}
+{% endblock %}

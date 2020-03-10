@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% block header %}
+    {{ super() }}
+    <style>
+        .about-card, .help-card {
+            top: 3vh;
+            left: 5%;
+            width: 90%;
+        }
+        .help-card-header {
+            text-align: center;
+        }
+        .help-card-title {
+            font-size: 30px;
+            font-weight: bold;        }
+        .about-card-content, .help-card-item {
+            font-size: 24px;
+        }
+        .help-card-label {
+            text-overflow: unset!important;
+            white-space: initial!important;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <ion-card class="about-card">
+        <ion-card-content class="about-card-content">
+            This is an application website to test Python Flask Restful API.</br>
+            It is also demonstrating the use the Ionic Stencil Web Components in Jinja2 templates.</br>
+            Web Components technology will bring more power in the hand of Python application developers.</br>            
+
+        </ion-card-content>
+    </ion-card>
+    <ion-card class="help-card">
+        <ion-card-header class="help-card-header">
+            <ion-card-title class="help-card-title">Help</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+            <ion-list>
+                <ion-item class="help-card-item">
+                    <ion-thumbnail class="menu-thumbnail" slot="start">
+                        <ion-icon class="menu-icon" name="home" color="dark"></ion-icon>
+                    </ion-thumbnail>
+                    <ion-label class="help-card-label">Go to Home template</ion-label>
+                </ion-item>
+                <ion-item class="help-card-item">
+                    <ion-thumbnail class="menu-thumbnail" slot="start">                        
+                        <ion-icon class="menu-icon" name="menu" color="dark"></ion-icon>
+                    </ion-thumbnail>
+                    <ion-label class="help-card-label">Toggle the menu when screen width smaller than 1200px </br>
+                    The menu can also be toggled by swiping from the left border to the right and reverse </ion-label>
+                </ion-item>
+                <ion-item class="help-card-item">
+                    <ion-thumbnail class="menu-thumbnail" slot="start">                        
+                        <svg width="36" height="36">       
+                            <image xlink:href="{{ url_for('static', filename='assets/plot.svg') }}" 
+                                 width="36" height="36"/>    
+                        </svg> 
+                    </ion-thumbnail>
+                    <ion-label class="help-card-label">Go to one of the Plot templates ("Bokey", "Jeep")</ion-label>
+                </ion-item>
+                <ion-item class="help-card-item">
+                    <ion-thumbnail class="menu-thumbnail" slot="start">                        
+                        <ion-icon class="menu-icon" name="add-circle" color="secondary"></ion-icon>
+                    </ion-thumbnail>
+                    <ion-label class="help-card-label">Give access to the Position Selector when in Plot templates</ion-label>
+                </ion-item>
+                <ion-item class="help-card-item">
+                    <ion-thumbnail class="menu-thumbnail" slot="start">
+                        <ion-icon class="menu-icon" name="information-circle" color="dark"></ion-icon>
+                    </ion-thumbnail>
+                    <ion-label class="help-card-label">Go to the About template</ion-label>
+                </ion-item>
+
+            </ion-list>
+        </ion-card-content>
+    </ion-card>
+
+    {% endblock %}

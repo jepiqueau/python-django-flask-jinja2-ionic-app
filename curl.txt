@@ -1,0 +1,15 @@
+curl http://localhost:5000/hello
+curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:5000/hello
+curl http://0.0.0.0:5000/multi/24
+curl http://localhost:5000/component
+curl "http://localhost:5000/component?position=13"
+curl "http://localhost:5000/component?id=8"
+curl "http://localhost:5000/component?filter=id&from=5&to=12"
+curl "http://localhost:5000/component?filter=id&to=12"
+curl "http://localhost:5000/component?filter=id&from=10"
+curl "http://localhost:5000/component?filter=position&from=12&to=21"
+curl "http://localhost:5000/component?filter=position&to=5"
+curl "http://localhost:5000/component?filter=position&from=13"
+curl "http://localhost:5000/component?position=minmax"
+curl "http://localhost:5000/component?range"
+

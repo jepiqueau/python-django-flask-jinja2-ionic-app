@@ -1,0 +1,24 @@
+{
+    "components" : [
+        {"position" : 1, "weight" : 5.25},        
+        {"position" : 2, "weight" : 2.32},        
+        {"position" : 4, "weight" : 4.55},        
+        {"position" : 5, "weight" : 5.25},        
+        {"position" : 8, "weight" : 3.75},        
+        {"position" : 10, "weight" : 7.237},        
+        {"position" : 11, "weight" : 1.25},        
+        {"position" : 13, "weight" : 2.25},        
+        {"position" : 14, "weight" : 3.75},        
+        {"position" : 16, "weight" : 5.25},        
+        {"position" : 18, "weight" : 2.25},        
+        {"position" : 20, "weight" : 7.237},        
+        {"position" : 22, "weight" : 4.55},        
+        {"position" : 25, "weight" : 3.75},        
+        {"position" : 27, "weight" : 5.25},        
+        {"position" : 30, "weight" : 7.237},        
+        {"position" : 33, "weight" : 3.75},        
+        {"position" : 35, "weight" : 2.32},        
+        {"position" : 37, "weight" : 4.55},        
+        {"position" : 40, "weight" : 5.25}        
+    ]
+}

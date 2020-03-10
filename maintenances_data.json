@@ -1,0 +1,14 @@
+{
+    "maintenances" : [
+        {"body":"Test Component 1 OK","component_id":1},
+        {"body":"Test Component 10 OK","component_id":10},
+        {"body":"Test Component 17 OK","component_id":17},
+        {"body":"Test Component 4 OK","component_id":4},
+        {"body":"Test Component 15 OK","component_id":15},
+        {"body":"Test Component 6 OK","component_id":6},
+        {"body":"Test Component 4 OK","component_id":4},
+        {"body":"Test Component 9 OK","component_id":9},
+        {"body":"Test Component 1 OK","component_id":1},
+        {"body":"Test Component 12 OK","component_id":12}
+    ]
+}

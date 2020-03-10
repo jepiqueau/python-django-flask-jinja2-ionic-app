@@ -1,0 +1,283 @@
+{% extends "layout.html" %}
+{% block header %}
+    {{ super() }}
+    <style>
+        .notvisible {
+            visibility: hidden;
+        }
+        div.plot h1 {
+            text-align: center;
+            font-size: 36px;
+        }   
+        #form-position-submit {
+        text-align: center;
+        }
+        #submit {
+            font-size: 2rem !important;
+            text-transform: uppercase;
+            width: 10rem;
+        }
+        .item-single-range, .item-dual-range {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            font-size: 1.5rem;
+            padding-top: 1rem;
+        }
+        .single-range, .dual-range {
+            --height: 80px;
+            --bar-height: 5px;
+            --knob-size: 40px;
+            font-size: 1.5rem;
+        }
+        .plot-container {
+            width: 90%;
+            height: 50%;
+            align-items: center;
+            margin: 0 auto;
+        }
+        .bk-root {
+            width: 100%;
+        }
+    </style>
+    <script type="module">
+        import { actionSheetController } from 'https://cdn.jsdelivr.net/npm/@ionic/core@next/dist/ionic/index.esm.js';
+        window.actionSheetController = actionSheetController;
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div class="plot">
+        <h1>Component Weight versus Position</h1>
+        <ion-fab vertical="top" horizontal="end" slot="fixed">
+            <ion-fab-button onClick="handleButtonClick()" color="secondary">
+            <ion-icon name="add"></ion-icon>
+            </ion-fab-button>
+        </ion-fab>
+        <div>
+            <form action="" method="post" name="PositionForm">
+                {{form.hidden_tag()}}
+                <div id="form-position">
+                    <div class="input-group notvisible">
+                        <table id="form-table-position"; cellspacing="5px" cellpadding="5%"; align="center">  
+                            <tr>  
+                                <td align="left">{{form.sel_option.label}}</td>  
+                                <td align="left">{{form.sel_option(onchange="optionchange()")}}</td>  
+                            </tr>
+                            <tr>
+                                <tr id="row-from" class="row-from hidden">  
+                                    <td align="left">{{form.sel_from.label}}</td>  
+                                    <td align="left">{{form.sel_from}}</td>  
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td> 
+                                        {% for error in form.sel_from.errors %}
+                                            <span style="color: red;">[{{ error }}]</span>
+                                        {% endfor %} 
+                                    </td>                                        
+                                </tr>
+                            </tr>
+                            <tr>
+                                <tr id="row-to" class="row-to hidden">  
+                                    <td align="left">{{form.sel_to.label}}</td>  
+                                    <td align="left">{{form.sel_to}}</td>  
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td> 
+                                        {% for error in form.sel_to.errors %}
+                                            <span style="color: red;">[{{ error }}]</span>
+                                        {% endfor %} 
+                                    </td>                                        
+                                </tr>
+                            </tr>
+                        </table> 
+                    </div> 
+                    <p id="form-position-submit" class="notvisible">{{ form.submit() }}</p>
+                </div>
+            </form>
+        </div>
+        <ion-card class="range-container hidden">
+            <div class="item-single-range hidden">
+                <ion-label id="label-single-range"></ion-label>
+                <ion-range  class="single-range" min={{rangeKeys['min']}} 
+                    max={{rangeKeys['max']}} color="secondary">
+                    <ion-label slot="start">Id: {{rangeKeys['min']}}</ion-label>
+                    <ion-label slot="end">Id: {{rangeKeys['max']}}</ion-label>
+                </ion-range> 
+            </div>         
+            <div class="item-dual-range hidden">
+                <ion-label id="label-dual-range"></ion-label>
+                <ion-range class="dual-range" dual-knobs min={{rangeKeys['min']}} 
+                    max={{rangeKeys['max']}}>
+                    <ion-label slot="start">Id: {{rangeKeys['min']}}</ion-label>
+                    <ion-label slot="end">Id: {{rangeKeys['max']}}</ion-label>
+                </ion-range> 
+            </div>      
+        </ion-card>
+        <div class="plot-container">   
+            {% for plot in plots %}
+                {% for part in plot %}
+                    {{part | safe}}
+                {% endfor %}
+            {% endfor %}
+        </div> 
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        const jsArray = {{ data | tojson }};
+        const rangeKeys = {{ rangeKeys | tojson }};
+        console.log("jsArray ",jsArray)
+        console.log("rangeKeys ",rangeKeys)
+        const select = document.querySelector("#sel_option");
+        const submit = document.querySelector("#form-position-submit");
+        const selFrom = document.querySelector("#sel_from");
+        const selTo = document.querySelector("#sel_to");
+        const plotContainer = document.querySelector(".plot-container");
+        const rangeContainer = document.querySelector(".range-container");
+        const itemSingle = document.querySelector(".item-single-range");
+        const itemDual = document.querySelector(".item-dual-range");
+        const singleRange = document.querySelector(".single-range");
+        const dualRange = document.querySelector(".dual-range");
+        const singleLabel = document.querySelector("#label-single-range");
+        const dualLabel = document.querySelector("#label-dual-range");
+        singleLabel.textContent = "Component Position: " + rangeKeys['min'];
+        dualLabel.textContent = "Component Position From: " + rangeKeys['min'] + " To: " + rangeKeys['max'];
+        selFrom.value = jsArray[rangeKeys['min']];
+        selTo.value = jsArray[rangeKeys['max']];
+        singleRange.addEventListener('ionChange',(ev) => {
+            console.log('*** select.value ',select.value)
+            switch (select.value) {
+                case "One":
+                    selFrom.value = jsArray[ev.detail.value];
+                    singleLabel.textContent = "Component Position: " + jsArray[ev.detail.value];
+                    break;
+                case "From":
+                    selFrom.value = jsArray[ev.detail.value];
+                    singleLabel.textContent = "Component From Position: " + jsArray[ev.detail.value];
+                    break;
+                case "To":
+                    selTo.value = jsArray[ev.detail.value];
+                    singleLabel.textContent = "Component To Position: " + jsArray[ev.detail.value];
+                    break;
+            }
+        },false);
+        dualRange.addEventListener('ionChange',(ev) => {
+            dualLabel.textContent = "Component Position From: " + jsArray[ev.detail.value.lower] + 
+                " To: " + jsArray[ev.detail.value.upper];
+                    selFrom.value = jsArray[ev.detail.value.lower];
+                    selTo.value = jsArray[ev.detail.value.upper];
+        },false);
+
+        async function aSHandler(mode) {
+            console.log('in aSHandler jsArray ',jsArray);
+            console.log('in aSHandler mode ' + mode);
+            if(mode != "cancel") {
+                if( !plotContainer.classList.contains('hidden')) plotContainer.classList.toggle('hidden');
+                switch (mode) {
+                    case "all": 
+                        select.value = "All";
+                        break;
+                    case "one":
+                        select.value = "One";
+                        singleLabel.textContent = "Component Position: " + rangeKeys['min'];
+                        selectValue('single');
+                        break;
+                    case "from":
+                        select.value = "From";
+                        singleLabel.textContent = "Component From Position: " + rangeKeys['min'];
+                        selectValue('single');
+                        break;
+                    case "to":
+                        select.value = "To";
+                        singleRange.value =rangeKeys['max'];
+                        singleLabel.textContent = "Component To Position: " + rangeKeys['max'];
+                        selectValue('single');
+                        break;
+                    case "fromto":
+                        select.value = "FromTo";
+                        dualRange.value = { lower: rangeKeys['min'], upper: rangeKeys['max'] };
+                        dualLabel.textContent = "Component Position From: " + jsArray[rangeKeys['min']] + 
+                            " To: " + jsArray[rangeKeys['max']];
+                        selectValue('dual');
+                        break;
+
+                }
+                if( submit.classList.contains('notvisible')) submit.classList.toggle('notvisible');
+
+            }
+        }
+        /**
+         * return the position value
+         */
+        function selectValue(mode) {
+            if( rangeContainer.classList.contains('hidden')) rangeContainer.classList.toggle('hidden');
+
+            switch (mode) {
+                case "single":
+                    if( !itemDual.classList.contains('hidden')) itemDual.classList.toggle('hidden');
+                    if( itemSingle.classList.contains('hidden')) itemSingle.classList.toggle('hidden');
+
+                    break;
+                case "dual":
+                    if( !itemSingle.classList.contains('hidden')) itemSingle.classList.toggle('hidden');
+                    if( itemDual.classList.contains('hidden')) itemDual.classList.toggle('hidden');
+                    break;
+            }
+        }
+        /**
+         * set the actionSheet for Position Selector 
+         */
+        async function handleButtonClick() {
+            console.log('in handleButtonClick()');
+            const actionSheet = await actionSheetController.create();
+            actionSheet.header = "Position Selector";
+            actionSheet.buttons = [{
+            text: 'All',
+            icon: 'albums',
+            handler: () =>{
+                    aSHandler('all');
+                }
+            }, {
+            text: 'One',
+            icon: 'add',
+            handler: () =>{
+                    aSHandler('one');
+                }
+            }, {
+            text: 'From',
+            icon: 'chevron-back',
+            handler: () => {
+                aSHandler('from');
+            }
+            }, {
+            text: 'To',
+            icon: 'chevron-forward',
+            handler: () => {
+                aSHandler('to');
+            }
+            }, {
+            text: 'From To',
+            icon: 'code',
+            handler: () => {
+                aSHandler('fromto');
+            }
+            }, {
+            text: 'Cancel',
+            icon: 'close',
+            role: 'cancel',
+            handler: () => {
+                aSHandler('cancel');
+            }
+            }];
+            await actionSheet.present();
+        }
+
+    </script>
+    {{ super() }}
+{% endblock %}
+

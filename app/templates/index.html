@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block header %}
+    {{ super() }}
+    <style>
+        .home-card {
+            top: 3vh;
+            left: 5%;
+            width: 90%;
+        }
+        .home-card-content {
+            font-size: 24px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <ion-card class="home-card">
+        <ion-card-content class="home-card-content">
+            The purpose of this Python Django App is to demonstrate the use of Ionic Stencil Web Components in Jinja2 templates
+        </ion-card-content>
+    </ion-card>
+{% endblock %}

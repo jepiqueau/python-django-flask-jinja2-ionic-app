@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% if title %}
+        <title>{{ title }} - Jeepblog</title>
+        {% else %}
+        <title>Welcome to Jeepblog</title>
+        {% endif %}
+        <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core@latest/dist/ionic/ionic.esm.js"></script>
+        <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core@latest/dist/ionic/ionic.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/@ionic/core@latest/css/ionic.bundle.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.13.0.min.css" type="text/css" />
+        <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.13.0.min.js"></script>
+        <script type = "text/javascript" src = "{{ url_for('static', filename = 'js/main.js') }}" ></script>
+        <script type="module" src="https://unpkg.com/ionicons@5.0.0/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule="" src="https://unpkg.com/ionicons@5.0.0/dist/ionicons/ionicons.js"></script>
+        <script type="module" src="https://cdn.jsdelivr.net/npm/@jeepq/core@latest/dist/jeep/jeep.esm.js"></script>
+        <script nomodule src="https://cdn.jsdelivr.net/npm/@jeepq/core@latest/dist/jeep/jeep.js"></script>        
+        {% block header %}
+            <style>
+                :root {
+                --ion-safe-area-top: 20px;
+                --ion-safe-area-bottom: 22px;
+                }
+                .header-content {
+                    font-size: 36px;
+                    text-align: center;
+                    font-weight: bold;
+                }
+                .menu-thumbnail {
+                    padding: 10px;
+                }
+                .menu-icon {
+                    width: 1.5em;
+                    height: 1.5em;
+                }
+                .menu-item {
+                    font-size: 24px;
+                }
+                .menu-title {
+                    font-size: 24px;
+                }
+                ion-menu-button, .header-title {
+                    font-size: 36px;
+                }
+
+            </style>
+        {% endblock %}
+    </head>
+    <body>
+        <ion-app>
+            <ion-split-pane id="split-pane" content-id="main-content" when="xl" 
+                style="--side-min-width:150px;--side-max-width:20%;">
+                <ion-menu id="app-menu" content-id="main-content" side="start" menu-id="app-menu">
+                    <ion-header>
+                        <ion-toolbar color="light">
+                            <ion-title class="menu-title">App Menu</ion-title>
+                        </ion-toolbar>
+                    </ion-header>
+                    <ion-content>
+                        <ion-list>
+                            <ion-item class="menu-item" onClick="menuClickHandler('index')">
+                                <ion-thumbnail class="menu-thumbnail" slot="start">
+                                    <ion-icon class="menu-icon" name="home" color="dark"></ion-icon>
+                                </ion-thumbnail>
+                                <ion-label>Home</ion-label>
+                            </ion-item>
+                            <ion-item class="menu-item" onClick="menuClickHandler('plot')">
+                                <ion-thumbnail class="menu-thumbnail" slot="start">
+                                    <svg width="1.5em" height="1.5em">       
+                                        <image xlink:href="{{ url_for('static', filename='assets/plot.svg') }}" 
+                                             width="1.5em" height="1.5em"/>    
+                                   </svg> 
+                                </ion-thumbnail>                              
+                                <ion-label>Plot Bokeh</ion-label>
+                            </ion-item>
+                            <ion-item class="menu-item" onClick="menuClickHandler('newplot')">
+                                <ion-thumbnail class="menu-thumbnail" slot="start">
+                                    <svg width="36" height="36">       
+                                        <image xlink:href="{{ url_for('static', filename='assets/plot.svg') }}" 
+                                             width="36" height="36"/>    
+                                   </svg> 
+                                </ion-thumbnail>                              
+                                <ion-label>Plot Jeep</ion-label>
+                            </ion-item>
+                            <ion-item class="menu-item" onClick="menuClickHandler('about')">
+                                <ion-thumbnail class="menu-thumbnail" slot="start">
+                                    <ion-icon class="menu-icon" name="information-circle" color="dark"></ion-icon>
+                                </ion-thumbnail>
+                                <ion-label>About</ion-label>
+                            </ion-item>
+                        </ion-list>
+                    </ion-content>
+                </ion-menu>
+                <ion-router-outlet id="main-content">                
+                    <ion-header>
+                        <ion-toolbar color="light">
+                            <ion-title class="header-title">Jeepblog - {{ title }}</ion-title>
+                            <ion-buttons slot='start'>
+                                <ion-button  href="{{ url_for('index') }}">
+                                    <ion-icon class="menu-icon" name="home"></ion-icon>
+                                </ion-button>
+                            </ion-buttons>              
+                            <ion-buttons slot='end'>
+                                <ion-menu-button menu="app-menu" ></ion-menu-button>
+                            </ion-buttons>              
+                        </ion-toolbar>
+                    </ion-header>
+                    <ion-content>
+                        <div id="container-content">
+                            <ion-item class="header-content" lines="none">
+                                <ion-thumbnail slot="start">
+                                    <svg width="60" height="60">       
+                                        <image xlink:href="{{ url_for('static', filename='assets/jeepq.svg') }}" 
+                                            src="{{ url_for('static', filename='assets/jeepq.jpeg') }}" width="60" height="60"/>    
+                                   </svg> 
+                                </ion-thumbnail>                              
+                                <ion-label>{{ header.label }}</ion-label>
+                            </ion-item>
+                            {% block content %}
+                            {% endblock %}
+                        </div>        
+                    </ion-content>
+                </ion-router-outlet>
+            </ion-split-pane>              
+        </ion-app>
+        {% block javascript %}
+            <script>
+                function menuClickHandler(item,value=null) {
+                    const menu = document.querySelector("#app-menu");
+                    menu.close();
+                    var url
+                    switch (item) {
+                        case 'index' :
+                            url ="{{url_for('index')}}";
+                            break;
+                        case 'about' :
+                            url ="{{url_for('about')}}";
+                            break;
+                        case 'plot' :
+                            url ="{{url_for('plot')}}";
+                            break;
+                        case 'newplot' :
+                            url ="{{url_for('newplot',pos='none')}}";
+                            break;
+
+                    } 
+                    document.location.href = url;
+                }
+            </script>
+        {% endblock %}
+    </body>
+</html>
