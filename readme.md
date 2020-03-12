@@ -13,18 +13,18 @@ git remote rm origin
 ### Set up a virtual environment
 You can make sure that pip is up-to-date by running:
 ```
-pip3 install --upgrade pip
+pip install --upgrade pip
 ```
 
 Then check for virtualenv installed on Python
 
 ```
-python3 -m virtualenv --version
+python -m virtualenv --version
 ```
 If not
 
 ```
-pip3 install virtualenv
+py -m pip install --user virtualenv
 ```
 
 Then execute ```setenv``` to set-up the environment and the application requirements.
@@ -156,11 +156,13 @@ sqlite>.exit
 ### Run the App
 
 ```cmd
+activateenv
 bootstrap
 ``` 
 or
 
 ```powershell
+./activateenv
 ./bootstrap
 ``` 
 
@@ -193,7 +195,7 @@ python3 -m virtualenv --version
 If not
 
 ```bash
-pip3 install virtualenv
+python3 -m pip install --user virtualenv
 ```
 
 Then execute ```setenv``` to set-up the environment and the application requirements.
