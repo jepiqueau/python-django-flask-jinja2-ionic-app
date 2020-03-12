@@ -50,6 +50,10 @@
         .range-container {
             text-align: center;
         } 
+        .plot-container {
+            width: 100%;
+            height:auto;
+        }
     </style>
     <script type="module">
         import { actionSheetController } from 'https://cdn.jsdelivr.net/npm/@ionic/core@next/dist/ionic/index.esm.js';
@@ -90,8 +94,7 @@
                 <jeep-linechart id="plot-linechart" ctitle="{{plot['title']}}" subtitle="{{plot['sub_title']}}"
                     xtitle="{{plot['x_axis_label']}}" ytitle="{{plot['y_axis_label']}}"
                     data="{{plot['data']}}"
-                  animation cborder
-                  cstyle="--height:50%;--width:90%;--top:50px;--left:5%;">
+                  animation cborder>
                 </jeep-linechart>
             </div> 
         {% endfor %}
@@ -100,6 +103,7 @@
 {% endblock %}
 
 {% block javascript %}
+    {{ super() }}
     <script>
         // get data and rangeKeys from python route.py
         const jsArray = {{ data | tojson }};
@@ -110,8 +114,12 @@
         var selFromValue = jsArray[rangeKeys['min']];
         var selToValue = jsArray[rangeKeys['max']];
 
+
         // get the main HTML Elements
         const root = document.documentElement;
+        const contentContainer = document.querySelector("#container-content");
+
+
         const plotContainer = document.querySelector(".plot-container");
         const rangeContainer = document.querySelector(".range-container");
         const itemSingle = document.querySelector(".item-single-range");
@@ -122,18 +130,16 @@
         const dualLabel = document.querySelector("#label-dual-range");
         const plotButton = document.querySelector(".button-plot");
         const lineChart = document.querySelector("#plot-linechart");
+
+
         // override some global custom css variables for the linechart web component
         root.style.setProperty('--chart-axis-x-zero','false');
         const xInter = mode === "one" ? '1' : '5'
         root.style.setProperty('--chart-axis-x-interval',xInter);
-
-        if( plotContainer != null ) {
-            if( plotContainer.classList.contains('hidden')) plotContainer.classList.toggle('hidden');
-        }
-
         // init single and dual Labels
         singleLabel.textContent = "Component Position: " + rangeKeys['min'];
         dualLabel.textContent = "Component Position From: " + rangeKeys['min'] + " To: " + rangeKeys['max'];
+
 
         // define some EventListener for ion-range element    
         singleRange.addEventListener('ionChange',(ev) => {
@@ -159,6 +165,21 @@
                     selFromValue = jsArray[ev.detail.value.lower];
                     selToValue = jsArray[ev.detail.value.upper];
         },false);
+
+        if( lineChart != null ) {
+            lineChart.addEventListener('jeepLinechartReady',() => {
+                var wWidth = window.innerWidth;
+
+                if (wWidth >= 1200) {
+                    lineChart.cstyle = cstyle="--height:350px;--width:70%;--top:30px;--left:5%;";
+                } else {
+                    lineChart.cstyle = cstyle="--height:350px;--width:90%;--top:30px;--left:5%;";
+                }
+            },false);
+        }
+        if( plotContainer != null ) {
+           if( plotContainer.classList.contains('hidden')) plotContainer.classList.toggle('hidden');
+        }
 
         /**
          * display single or dual ion-range
@@ -296,7 +317,25 @@
             url = url.replace('mode',value)
             document.location.href = url;
         }
-
+        /*
+        async function getRect() {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => { 
+                    rect =contentContainer.getBoundingClientRect();
+                    resolve({rect:rect});
+                }, 500);
+            });
+        }
+        async function getCstyle() {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => { 
+                    var cstyle = lineChart.cstyle;
+                    console.log('cstyle ',cstyle)
+                    resolve({cstyle:cstyle});
+                }, 500);
+            });
+        }
+        */
     </script>
     {{ super() }}
 {% endblock %}
