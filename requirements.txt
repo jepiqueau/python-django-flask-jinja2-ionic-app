@@ -20,7 +20,7 @@ MarkupSafe==1.1.1
 mccabe==0.6.1
 numpy==1.18.1
 packaging==20.3
-Pillow==7.0.0
+Pillow==8.1.1
 pylint==2.4.4
 pyparsing==2.4.6
 python-dateutil==2.8.1
